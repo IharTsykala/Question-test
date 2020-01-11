@@ -3,21 +3,112 @@ const firstLevelTask = [
     description: "первый космонавт",
     optionAnswers: ["Титов", "Гагарин", "Терешкова", "Комаров"],
     levelDifficulty: "first level",
-    answer: 1
+    answer: "Гагарин"
   },
   {
     description: "первый президент",
     optionAnswers: ["Горбачев", "Кучма", "Лукашенко", "Путин"],
     levelDifficulty: "first level",
-    answer: 2
+    answer: "Лукашенко"
   },
   {
     description: "первый герой РБ ",
     optionAnswers: ["Гастелло", "Шойгу", "Маресьев", "Карват"],
     levelDifficulty: "first level",
-    answer: 3
+    answer: "Карват"
   }
 ]
+
+// 1. Как правильно закончить пословицу: «Не откладывай на завтра то, что можно…»?
+
+// сделать сегодня
+// сделать послезавтра
+// сделать через месяц
+// никогда не делать
+// 2. Что говорит человек, когда замечает нечто необычное?
+
+// попало в лоб
+// залетело в рот
+// накапало в уши
+// бросилось в глаза
+// 3. Что помогает туристу ориентироваться в незнакомом городе?
+
+// путепровод
+// путеукладчик
+// путеводитель
+// путеводная звезда
+// 4. Какой наряд прославил баснописец Крылов?
+
+// тришкин кафтан
+// ивашкин армяк
+// прошкин зипун
+// машкин сарафан
+// 5. Как звали старшую сестру императора Петра Первого?
+
+// Вера
+// Надежда
+// Любовь
+// Софья
+// 6. Что не бывает морским?
+
+// рельс
+// огурец
+// гребешок
+// узел
+// 7. Кого с большим основанием можно назвать островитянами?
+
+// алеутов
+// эвенков
+// чукчей
+// якутов
+// 8. В какой стране появилась мандолина?
+
+// Испания
+// Италия
+// Венгрия
+// Греция
+// 9. Как жители Лондона прозвали небоскреб Мэри-Экс, спроектированный Норманом Фостером?
+
+// «корнишон»
+// «баклажан»
+// «кабачок»
+// «патиссон»
+// 10. Какой врач первым в истории русской медицины применил гипсовую повязку?
+
+// Субботин
+// Пирогов
+// Боткин
+// Склифосовский
+// 11. Где в Древней Греции можно было увидеть надпись: «Здесь живут мертвые и говорят немые»?
+
+// на кладбищах
+// в больницах
+// в библиотеках
+// в тюрьмах
+// 12. Кто был одним из авторов сценария фильма «Музыкальная история» с Сергеем Лемешевым в главной роли?
+
+// Илья Ильф
+// Евгений Петров
+// Михаил Зощенко
+// Аркадий Аверченко
+// 13. С чем часто охотятся на рыбу протоптера между сезонами дождей?
+
+// с сетями
+// с сачками
+// с ружьями
+// с лопатами
+// 14. Каким видом спорта серьезно увлекался французский летчик Ролан Гаррос?
+
+// пинг-понгом
+// поло
+// гольфом
+// регби
+// 15. Что такое лобогрейка?
+
+// жнейка
+// шапка
+// болезнь
+// печка
 
 // class Person {
 //     constructor(firstName, secondName) {
@@ -30,8 +121,9 @@ class Model {
     this.arrTask = arrTask
     this.currentNumberQuestion = 0
     this.answerList = []
-    this.writeAnswer = 0
-    this.falseAnswer = 0
+    this.amoundTrueAnswer = 0
+    this.amoundFalseAnswer = 0
+    this.currentWriteAnswerIndex = 0
   }
 
   startProgram(first, last) {
@@ -39,6 +131,7 @@ class Model {
     this.fullName = fullName
     return fullName
   }
+
   searchCurrentQuestion(levelDifficulty) {
     this.currentListQuestion = []
     this.arrTask.forEach(obj => {
@@ -46,29 +139,60 @@ class Model {
         this.currentListQuestion.push(obj)
       }
     })
-  }
-  nextQuestion() {
-    if (
-      this.currentListQuestion[this.currentNumberQuestion] >
-      this.currentListQuestion.length - 1
-    )
-      return
-    return this.currentListQuestion[this.currentNumberQuestion++]
+    this.currentListQuestion = this.getRandom(this.currentListQuestion)
+
+    console.log(this.currentListQuestion)
+    // this.getRandom([this.currentListQuestion])
   }
 
-  checkCorrectAnswer(collectionInput, nextQuestion) {
-    if (collectionInput[nextQuestion.answer].checked) {
+  nextQuestion() {
+    if (this.currentNumberQuestion > this.currentListQuestion.length - 1) return
+
+    const currentQuestion = Object.assign(
+      {},
+      this.currentListQuestion[this.currentNumberQuestion++]
+    )
+
+    currentQuestion.optionAnswers = this.getRandom(
+      currentQuestion.optionAnswers
+    )
+
+    this.rememderWriteIndex(currentQuestion)
+
+    return currentQuestion
+  }
+
+  rememderWriteIndex(currentQuestion) {
+    currentQuestion.optionAnswers.forEach((item, index) => {
+      if (item === currentQuestion.answer) {
+        this.currentWriteAnswerIndex = index
+      }
+    })
+  }
+
+  getRandom(arr) {
+    const dup = arr.slice()
+    const result = []
+    while (dup.length) {
+      result.push(dup.splice(Math.round(Math.random() * dup.length - 1), 1))
+    }
+    return result.map(item => item[0])
+  }
+
+  checkCorrectAnswer(collectionInput) {
+    if (collectionInput[this.currentWriteAnswerIndex].checked) {
       this.answerList.push(true)
-      this.writeAnswer++
+      this.amoundTrueAnswer++
     } else {
       this.answerList.push(false)
-      this.falseAnswer++
+      this.amoundFalseAnswer++
     }
   }
 
   getPercentagesWriteAnswer() {
-    const percentages =
-      (this.writeAnswer / (this.currentNumberQuestion - 1)) * 100
+    const percentages = Math.round(
+      (this.amoundTrueAnswer / this.currentNumberQuestion) * 100
+    )
     return `${this.fullName} дал правильных ответов: ${percentages}%`
   }
 }
@@ -240,7 +364,7 @@ class Controller {
         const collectionInput = this.currentQuestionBlock.querySelectorAll(
           "input"
         )
-        this.model.checkCorrectAnswer(collectionInput, nextQuestion)
+        this.model.checkCorrectAnswer(collectionInput)
         this.nextQuestion()
       })
     } else {
