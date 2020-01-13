@@ -111,7 +111,6 @@ class Model {
   }
 
   startProgram(first, last) {
-    // if(first)    
     const fullName = `${first} ${last}`
     this.fullName = fullName
     return fullName
@@ -161,15 +160,15 @@ class Model {
     return result.map(item => item[0])
   }
 
-  checkCorrectAnswer(collectionInput) {  
+  checkCorrectAnswer(collectionInput) {
     if (collectionInput[this.currentWriteAnswerIndex].checked) {
       this.answerList.push(true)
       this.amoundTrueAnswer++
     } else {
       this.answerList.push(false)
       this.amoundFalseAnswer++
-    }    
-    return this.answerList    
+    }
+    return this.answerList
   }
 
   getPercentagesWriteAnswer() {
@@ -191,41 +190,54 @@ class View {
   constructor(wrapper) {
     this.wrapper = wrapper
     this.fullNameBegin = {
-      "first-name": "",
-      "last-name": ""
-    }    
+      "first-name": "Ihar",
+      "last-name": "Tsykala"
+    }
   }
 
   initial() {
     this.clearBlock(this.wrapper)
 
-    this.createStartForm = this.createElement('form','form', '')
+    this.createStartForm = this.createElement("form", "form", "")
     this.wrapper.append(this.createStartForm)
-
     const arrNameKeys = Object.keys(this.fullNameBegin)
     arrNameKeys.forEach(item => {
-      const input = this.createElement("input",`input-${item}`,'')      
+      const input = this.createElement("input", `input-${item}`, "")
       input.value = this.fullNameBegin[item]
-    //   input.setAttribute('pattern',"[a-zA-Z]+")
-    //   input.setAttribute( 'minlength','4')
       this.createStartForm.append(input)
     })
 
-    const startButton = this.createElement('button','button-start', 'start')    
+    const startButton = this.createElement("button", "button-start", "start")
     this.createStartForm.append(startButton)
 
-    this.levelDifficultyTaskBlock = this.createElement('div','difficulty-block', '')     
+    this.levelDifficultyTaskBlock = this.createElement(
+      "div",
+      "difficulty-block",
+      ""
+    )
     this.wrapper.append(this.levelDifficultyTaskBlock)
 
-    const headDifficulty = this.createElement('h4','head-difficulty', 'Choose the level of difficulty') 
-    this.levelDifficultyTaskBlock.append(headDifficulty)   
+    const headDifficulty = this.createElement(
+      "h4",
+      "head-difficulty",
+      "Choose the level of difficulty"
+    )
+    this.levelDifficultyTaskBlock.append(headDifficulty)
 
-   this. selectDifficulty = this.createElement('select','select-difficulty', '')   
+    this.selectDifficulty = this.createElement(
+      "select",
+      "select-difficulty",
+      ""
+    )
     this.levelDifficultyTaskBlock.append(this.selectDifficulty)
 
     const arrLevelsDifficulty = ["first", "second", "third"]
     arrLevelsDifficulty.forEach(item => {
-      const option = this.createElement("option", `${item}-difficulty`, `${item} level`)       
+      const option = this.createElement(
+        "option",
+        `${item}-difficulty`,
+        `${item} level`
+      )
       this.selectDifficulty.append(option)
     })
   }
@@ -239,17 +251,40 @@ class View {
 
   clearBlock(block) {
     if (block.children.length) {
-        for (let i = 0; i < block.children.length; i++) {
-          block.children[i].remove()
-          i--
-        }
+      for (let i = 0; i < block.children.length; i++) {
+        block.children[i].remove()
+        i--
+      }
     }
+  }
+
+  failValidation() {
+    if (
+      this.createStartForm.lastElementChild.innerText ===
+      "fail validation input"
+    )
+      this.createStartForm.lastElementChild.remove()
+    const p = this.createElement(
+      "p",
+      "fail-validation",
+      "fail validation input"
+    )
+    p.style.color = "red"
+    this.createStartForm.append(p)
+  }
+
+  writeValidation() {
+    if (
+      this.createStartForm.lastElementChild.innerText ===
+      "fail validation input"
+    )
+      this.createStartForm.lastElementChild.remove()
   }
 
   renderQuestion(fullName) {
     this.clearBlock(this.wrapper)
 
-    this.questionBlock = this.createElement("div", 'answer-block', '')    
+    this.questionBlock = this.createElement("div", "answer-block", "")
     this.wrapper.append(this.questionBlock)
 
     const levelForName = [fullName, this.selectDifficulty.value]
@@ -260,77 +295,93 @@ class View {
     })
   }
 
-  nextQuestion(nextQuestion) {    
+  nextQuestion(nextQuestion) {
     this.renderCurrentQuestion(nextQuestion)
   }
 
   renderCurrentQuestion(currentQuestion) {
     if (this.currentQuestionBlock) this.currentQuestionBlock.remove()
 
-    this.currentQuestionBlock = this.createElement("div",'current-question-block', '')
+    this.currentQuestionBlock = this.createElement(
+      "div",
+      "current-question-block",
+      ""
+    )
     this.questionBlock.append(this.currentQuestionBlock)
-    
-    const descriptionQuestion = this.createElement("p", '', currentQuestion.description)
-    this.currentQuestionBlock.append(descriptionQuestion)    
+
+    const descriptionQuestion = this.createElement(
+      "p",
+      "",
+      currentQuestion.description
+    )
+    this.currentQuestionBlock.append(descriptionQuestion)
 
     this.arrOptionQuestion = ["first", "second", "third", "fourth"]
     this.arrOptionQuestion.forEach((item, index) => {
-      const label = this.createElement("label", `${item}-label-question`, currentQuestion.optionAnswers[index])    
+      const label = this.createElement(
+        "label",
+        `${item}-label-question`,
+        currentQuestion.optionAnswers[index]
+      )
       this.currentQuestionBlock.append(label)
-      const input = this.createElement("input", '', '')
+      const input = this.createElement("input", "", "")
       input.setAttribute("type", "radio")
       input.setAttribute("name", "optionInput")
-      // input.setAttribute("checked", "true")
       label.append(input)
     })
 
-    const nextQuestionButton = this.createElement('button','button-submit-answer', 'next question')
-    this.currentQuestionBlock.append(nextQuestionButton)    
+    const nextQuestionButton = this.createElement(
+      "button",
+      "button-submit-answer",
+      "next question"
+    )
+    this.currentQuestionBlock.append(nextQuestionButton)
   }
 
   drawColorBlocks(lastAnswer) {
-      const labels =  this.currentQuestionBlock.querySelectorAll(
-        "label"
-      )
-      this.arrOptionQuestion.forEach((item,index)=>{    
-          const input = labels[index].firstElementChild        
-          if(input.checked) {            
-              if(lastAnswer) labels[index].style.color = "green"
-              else labels[index].style.color = "red"
-              this.bigSingToAnswer(lastAnswer)
-          }                 
-      })      
+    const labels = this.currentQuestionBlock.querySelectorAll("label")
+    this.arrOptionQuestion.forEach((item, index) => {
+      const input = labels[index].firstElementChild
+      if (input.checked) {
+        if (lastAnswer) labels[index].style.color = "green"
+        else labels[index].style.color = "red"
+        this.bigSingToAnswer(lastAnswer)
+      }
+    })
   }
 
-  bigSingToAnswer(lastAnswer) {    
-    let text   
-    if(lastAnswer) text = 'Правильно'
-    else text = 'Не правильно'
-     
-    const bigSing = this.createElement('h2', '', text)
+  bigSingToAnswer(lastAnswer) {
+    let text
+    if (lastAnswer) text = "Правильно"
+    else text = "Не правильно"
+
+    const bigSing = this.createElement("h2", "", text)
     this.currentQuestionBlock.append(bigSing)
   }
 
   viewPercentagesWriteAnswer(percentages, listQuestion, listAnswer) {
     this.clearBlock(this.wrapper)
-    const resultAnswer = this.createElement('ul', '' , '')
+    const resultAnswer = this.createElement("ul", "", "")
     this.wrapper.append(resultAnswer)
 
-    this.arrOptionQuestion.forEach((item, index)=> {        
-        let inner
-        if(listAnswer[index]) {            
-            inner = `${listQuestion[index].description}: правильный ответ`            
-        } else inner = `${listQuestion[index].description}: неправильный ответ` 
-        const p = this.createElement('p', `last-page__answer__${item}`, inner)    
-        this.wrapper.append(p)
-    
-    })    
+    this.arrOptionQuestion.forEach((item, index) => {
+      let inner
+      if (listAnswer[index]) {
+        inner = `${listQuestion[index].description}: правильный ответ`
+      } else inner = `${listQuestion[index].description}: неправильный ответ`
+      const p = this.createElement("p", `last-page__answer__${item}`, inner)
+      this.wrapper.append(p)
+    })
 
-    const resultPercentages = this.createElement("p",'',percentages)    
+    const resultPercentages = this.createElement("p", "", percentages)
     this.wrapper.append(resultPercentages)
-    const restartButton = this.createElement('button','button-restart', 'restart')
+    const restartButton = this.createElement(
+      "button",
+      "button-restart",
+      "restart"
+    )
     this.wrapper.append(restartButton)
-  }  
+  }
 }
 
 class Controller {
@@ -340,23 +391,36 @@ class Controller {
     this.wrapper = wrapper
   }
 
-  initial() {    
+  initial() {
     this.view.initial()
 
     this.buttonStart = wrapper.querySelector(".button-start")
     this.buttonStart.addEventListener("click", e => this.startProgram(e))
 
+    const pattern = /[^A-zА-яЁё]/
     this.inputFirstName = wrapper.querySelector(".input-first-name")
-    console.log(this.inputFirstName)
-    // this.inputFirstName.addEventListener('input', ()=>{
-    //     // console.log(this.inputFirstName.value[this.inputFirstName.value.length-1])
-    //    if(this.inputFirstName.value===/(?=.*[a-z]){2,}/g) {
-    //     console.log('hi')
-    //    }
-    // })
+    this.inputFirstName.addEventListener("input", e =>
+      this.checkValidation(pattern, e)
+    )
     this.inputSecondName = wrapper.querySelector(".input-last-name")
+    this.inputSecondName.addEventListener("input", e =>
+      this.checkValidation(pattern, e)
+    )
 
     this.selectDifficulty = wrapper.querySelector(".select-difficulty")
+  }
+
+  checkValidation(pattern, event) {
+    if (
+      pattern.test(event.target.value[event.target.value.length - 1]) ||
+      event.target.value.length < 3
+    ) {
+      this.buttonStart.disabled = true
+      this.view.failValidation()
+    } else {
+      this.view.writeValidation()
+      this.buttonStart.disabled = false
+    }
   }
 
   startProgram(e) {
@@ -364,7 +428,7 @@ class Controller {
     const fullName = this.model.startProgram(
       this.inputFirstName.value,
       this.inputSecondName.value
-    )    
+    )
     this.model.searchCurrentQuestion(this.selectDifficulty.value)
     this.view.renderQuestion(fullName)
     this.nextQuestion()
@@ -375,23 +439,22 @@ class Controller {
     if (nextQuestion) {
       this.view.nextQuestion(nextQuestion)
       this.submitButtonAnswer = wrapper.querySelector(".button-submit-answer")
-      this.submitButtonAnswer.addEventListener("click", e => {        
+      this.submitButtonAnswer.addEventListener("click", e => {
         this.currentQuestionBlock = wrapper.querySelector(
           ".current-question-block"
-        )        
-        const collectionInput = [...this.currentQuestionBlock.querySelectorAll(
-          "input"
-        )]
-        collectionInput.forEach((item)=>{                
-            if(item.checked) {
-                this.submitButtonAnswer.disabled = true
-                const answerList = this.model.checkCorrectAnswer(collectionInput)        
-                this.view.drawColorBlocks(answerList[answerList.length-1])
-                setTimeout(()=>this.nextQuestion(), 1000)
-                }
-            })        
-        }            
-      )      
+        )
+        const collectionInput = [
+          ...this.currentQuestionBlock.querySelectorAll("input")
+        ]
+        collectionInput.forEach(item => {
+          if (item.checked) {
+            this.submitButtonAnswer.disabled = true
+            const answerList = this.model.checkCorrectAnswer(collectionInput)
+            this.view.drawColorBlocks(answerList[answerList.length - 1])
+            setTimeout(() => this.nextQuestion(), 1000)
+          }
+        })
+      })
     } else {
       this.launchLastPage()
     }
@@ -399,7 +462,11 @@ class Controller {
 
   launchLastPage() {
     const percentages = this.model.getPercentagesWriteAnswer()
-    this.view.viewPercentagesWriteAnswer(percentages,this.model.currentListQuestion, this.model.answerList)
+    this.view.viewPercentagesWriteAnswer(
+      percentages,
+      this.model.currentListQuestion,
+      this.model.answerList
+    )
     this.restartButton = wrapper.querySelector(".button-restart")
     this.restartButton.addEventListener("click", e => {
       this.model.clearConstructor()
