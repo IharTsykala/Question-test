@@ -51,7 +51,6 @@ const firstLevelTask = [
     levelDifficulty: "first level",
     answer: "путеводитель"
   },
-
   {
     description: "Какой наряд прославил баснописец Крылов?",
     optionAnswers: [
@@ -112,7 +111,7 @@ class Model {
   }
 
   startProgram(first, last) {
-    console.log(this)
+    // if(first)    
     const fullName = `${first} ${last}`
     this.fullName = fullName
     return fullName
@@ -162,17 +161,15 @@ class Model {
     return result.map(item => item[0])
   }
 
-  checkCorrectAnswer(collectionInput) {
+  checkCorrectAnswer(collectionInput) {  
     if (collectionInput[this.currentWriteAnswerIndex].checked) {
       this.answerList.push(true)
       this.amoundTrueAnswer++
     } else {
       this.answerList.push(false)
       this.amoundFalseAnswer++
-    }
-    console.log(this.answerList)
-    return this.answerList
-    // this.answerList[this.answerList.length-1]
+    }    
+    return this.answerList    
   }
 
   getPercentagesWriteAnswer() {
@@ -194,13 +191,13 @@ class View {
   constructor(wrapper) {
     this.wrapper = wrapper
     this.fullNameBegin = {
-      "first-name": "Ihar",
-      "last-name": "Tsykala"
+      "first-name": "",
+      "last-name": ""
     }    
   }
 
   initial() {
-    this.clearPage()
+    this.clearBlock(this.wrapper)
 
     this.createStartForm = this.createElement('form','form', '')
     this.wrapper.append(this.createStartForm)
@@ -209,6 +206,8 @@ class View {
     arrNameKeys.forEach(item => {
       const input = this.createElement("input",`input-${item}`,'')      
       input.value = this.fullNameBegin[item]
+    //   input.setAttribute('pattern',"[a-zA-Z]+")
+    //   input.setAttribute( 'minlength','4')
       this.createStartForm.append(input)
     })
 
@@ -238,21 +237,19 @@ class View {
     return element
   }
 
-  clearPage() {
-    if (this.wrapper.children.length) {
-        for (let i = 0; i < this.wrapper.children.length; i++) {
-          this.wrapper.children[i].remove()
+  clearBlock(block) {
+    if (block.children.length) {
+        for (let i = 0; i < block.children.length; i++) {
+          block.children[i].remove()
           i--
         }
     }
   }
 
   renderQuestion(fullName) {
-    this.clearPage()
+    this.clearBlock(this.wrapper)
 
     this.questionBlock = this.createElement("div", 'answer-block', '')    
-    this.questionBlock.style.background = "blue"
-    this.questionBlock.style.color = "#ffffff"
     this.wrapper.append(this.questionBlock)
 
     const levelForName = [fullName, this.selectDifficulty.value]
@@ -263,7 +260,7 @@ class View {
     })
   }
 
-  nextQuestion(nextQuestion) {
+  nextQuestion(nextQuestion) {    
     this.renderCurrentQuestion(nextQuestion)
   }
 
@@ -295,21 +292,42 @@ class View {
       const labels =  this.currentQuestionBlock.querySelectorAll(
         "label"
       )
-      this.arrOptionQuestion.forEach((item,index)=>{
+      this.arrOptionQuestion.forEach((item,index)=>{    
           const input = labels[index].firstElementChild        
           if(input.checked) {            
               if(lastAnswer) labels[index].style.color = "green"
               else labels[index].style.color = "red"
+              this.bigSingToAnswer(lastAnswer)
           }                 
       })      
   }
 
-  viewPercentagesWriteAnswer(percentages) {
-    this.clearPage()
+  bigSingToAnswer(lastAnswer) {    
+    let text   
+    if(lastAnswer) text = 'Правильно'
+    else text = 'Не правильно'
+     
+    const bigSing = this.createElement('h2', '', text)
+    this.currentQuestionBlock.append(bigSing)
+  }
 
-    this.result = this.createElement("p",'',percentages)    
-    this.wrapper.append(this.result)
+  viewPercentagesWriteAnswer(percentages, listQuestion, listAnswer) {
+    this.clearBlock(this.wrapper)
+    const resultAnswer = this.createElement('ul', '' , '')
+    this.wrapper.append(resultAnswer)
 
+    this.arrOptionQuestion.forEach((item, index)=> {        
+        let inner
+        if(listAnswer[index]) {            
+            inner = `${listQuestion[index].description}: правильный ответ`            
+        } else inner = `${listQuestion[index].description}: неправильный ответ` 
+        const p = this.createElement('p', `last-page__answer__${item}`, inner)    
+        this.wrapper.append(p)
+    
+    })    
+
+    const resultPercentages = this.createElement("p",'',percentages)    
+    this.wrapper.append(resultPercentages)
     const restartButton = this.createElement('button','button-restart', 'restart')
     this.wrapper.append(restartButton)
   }  
@@ -329,6 +347,13 @@ class Controller {
     this.buttonStart.addEventListener("click", e => this.startProgram(e))
 
     this.inputFirstName = wrapper.querySelector(".input-first-name")
+    console.log(this.inputFirstName)
+    // this.inputFirstName.addEventListener('input', ()=>{
+    //     // console.log(this.inputFirstName.value[this.inputFirstName.value.length-1])
+    //    if(this.inputFirstName.value===/(?=.*[a-z]){2,}/g) {
+    //     console.log('hi')
+    //    }
+    // })
     this.inputSecondName = wrapper.querySelector(".input-last-name")
 
     this.selectDifficulty = wrapper.querySelector(".select-difficulty")
@@ -350,18 +375,23 @@ class Controller {
     if (nextQuestion) {
       this.view.nextQuestion(nextQuestion)
       this.submitButtonAnswer = wrapper.querySelector(".button-submit-answer")
-      this.submitButtonAnswer.addEventListener("click", e => {
+      this.submitButtonAnswer.addEventListener("click", e => {        
         this.currentQuestionBlock = wrapper.querySelector(
           ".current-question-block"
         )        
-        const collectionInput = this.currentQuestionBlock.querySelectorAll(
+        const collectionInput = [...this.currentQuestionBlock.querySelectorAll(
           "input"
-        )
-        const answerList = this.model.checkCorrectAnswer(collectionInput)
-        console.log(answerList)
-        this.view.drawColorBlocks(answerList[answerList.length-1])
-        setTimeout(()=>this.nextQuestion(), 1000)
-      })
+        )]
+        collectionInput.forEach((item)=>{                
+            if(item.checked) {
+                this.submitButtonAnswer.disabled = true
+                const answerList = this.model.checkCorrectAnswer(collectionInput)        
+                this.view.drawColorBlocks(answerList[answerList.length-1])
+                setTimeout(()=>this.nextQuestion(), 1000)
+                }
+            })        
+        }            
+      )      
     } else {
       this.launchLastPage()
     }
@@ -369,7 +399,7 @@ class Controller {
 
   launchLastPage() {
     const percentages = this.model.getPercentagesWriteAnswer()
-    this.view.viewPercentagesWriteAnswer(percentages)
+    this.view.viewPercentagesWriteAnswer(percentages,this.model.currentListQuestion, this.model.answerList)
     this.restartButton = wrapper.querySelector(".button-restart")
     this.restartButton.addEventListener("click", e => {
       this.model.clearConstructor()
