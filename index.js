@@ -170,6 +170,9 @@ class Model {
       this.answerList.push(false)
       this.amoundFalseAnswer++
     }
+    console.log(this.answerList)
+    return this.answerList
+    // this.answerList[this.answerList.length-1]
   }
 
   getPercentagesWriteAnswer() {
@@ -204,8 +207,7 @@ class View {
 
     const arrNameKeys = Object.keys(this.fullNameBegin)
     arrNameKeys.forEach(item => {
-      const input = document.createElement("input")
-      input.className = `input-${item}`
+      const input = this.createElement("input",`input-${item}`,'')      
       input.value = this.fullNameBegin[item]
       this.createStartForm.append(input)
     })
@@ -274,8 +276,8 @@ class View {
     const descriptionQuestion = this.createElement("p", '', currentQuestion.description)
     this.currentQuestionBlock.append(descriptionQuestion)    
 
-    const arrOptionQuestion = ["first", "second", "third", "fourth"]
-    arrOptionQuestion.forEach((item, index) => {
+    this.arrOptionQuestion = ["first", "second", "third", "fourth"]
+    this.arrOptionQuestion.forEach((item, index) => {
       const label = this.createElement("label", `${item}-label-question`, currentQuestion.optionAnswers[index])    
       this.currentQuestionBlock.append(label)
       const input = this.createElement("input", '', '')
@@ -287,6 +289,19 @@ class View {
 
     const nextQuestionButton = this.createElement('button','button-submit-answer', 'next question')
     this.currentQuestionBlock.append(nextQuestionButton)    
+  }
+
+  drawColorBlocks(lastAnswer) {
+      const labels =  this.currentQuestionBlock.querySelectorAll(
+        "label"
+      )
+      this.arrOptionQuestion.forEach((item,index)=>{
+          const input = labels[index].firstElementChild        
+          if(input.checked) {            
+              if(lastAnswer) labels[index].style.color = "green"
+              else labels[index].style.color = "red"
+          }                 
+      })      
   }
 
   viewPercentagesWriteAnswer(percentages) {
@@ -342,8 +357,10 @@ class Controller {
         const collectionInput = this.currentQuestionBlock.querySelectorAll(
           "input"
         )
-        this.model.checkCorrectAnswer(collectionInput)
-        this.nextQuestion()
+        const answerList = this.model.checkCorrectAnswer(collectionInput)
+        console.log(answerList)
+        this.view.drawColorBlocks(answerList[answerList.length-1])
+        setTimeout(()=>this.nextQuestion(), 1000)
       })
     } else {
       this.launchLastPage()
