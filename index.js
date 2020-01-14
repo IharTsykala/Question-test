@@ -289,7 +289,7 @@ class View {
 
     const levelForName = [fullName, this.selectDifficulty.value]
     levelForName.forEach(item => {
-      const p = document.createElement("p")
+      const p = this.createElement("p", `question-block__${item}`)
       p.innerText = item
       this.questionBlock.append(p)
     })
